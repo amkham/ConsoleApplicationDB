@@ -31,32 +31,78 @@ struct record
 	myDate mydate;
 }* main_mas[N];
 
+struct tnode {
+	int field;           // поле данных
+	struct tnode* left;  // левый потомок
+	struct tnode* right; // правый потомок
+};
 
+void PrintHead();
+void PrintRecord(int num, struct record* BD);
+void PrintBD(struct record** BD, int n, int* index);
+void readFromFile();
+int* makeIndexArray(int k);
+bool cmp(myDate& a, myDate& b);
+void hoarasort(struct record** a, int left, int right);
+struct tnode* addnode(int x, tnode* tree);
+void HalfDiv(int start, int end);
+
+
+//////////////// MAIN///////////////////////
+
+
+int main()
+{
+
+	HalfDiv(0, 40);
+}
+/// <summary>
+/// /////////////////////////////////////////////////////////////////
+/// </summary>
+
+
+
+struct tnode* addnode(int x, tnode* tree) {
+	if (tree == NULL) { // Если дерева нет, то формируем корень
+		tree = new tnode; // память под узел
+		tree->field = x;   // поле данных
+		tree->left = NULL;
+		tree->right = NULL; // ветви инициализируем пустотой
+	}
+	else  if (x < tree->field)   // условие добавление левого потомка
+		tree->left = addnode(x, tree->left);
+	else    // условие добавление правого потомка
+		tree->right = addnode(x, tree->right);
+	return(tree);
+}
+
+struct record* Seach()
+{
+
+
+}
 
 void PrintHead() {
 	cout << "FIO \t\t\t\t\tDoljnost\t\tNomerOtdela\tData rojdeniya" <<
 		endl << "------------------------------------------------------------------------------------------------\n";
 }
 
-
-
 void PrintRecord(int num, struct record* BD) {
 	cout << num << ". " << BD->FIO << "\t" << BD->Post << "\t"
-		<< BD->Number << "\t\t" << BD->mydate.day << "-"<<BD->mydate.moth << "-" << BD->mydate.year  << endl;
+		<< BD->Number << "\t\t" << BD->Date << endl;
 }
-
 
 void PrintBD(struct record** BD, int n, int* index) {
 
-	
+
 	PrintHead();
 	for (int j = 0; j < n; j++) {
-		
+
 		PrintRecord(j, BD[index[j]]);
 
 		if ((j != 0) && (j % 20 == 0))
 		{
-		
+
 			cout << "Next 20 cout 1:Yes 0:No" << endl;
 			int identif;
 			cin >> identif;
@@ -65,19 +111,15 @@ void PrintBD(struct record** BD, int n, int* index) {
 				break;
 			}
 		}
-		
+
 	}
 }
-
-
-
-
 
 void readFromFile() {
 
 
-	FILE *fp;
-	fopen_s(&fp,"BASE2.dat", "rb");
+	FILE* fp;
+	fopen_s(&fp, "BASE2.dat", "rb");
 
 	if (fp == NULL)
 	{
@@ -108,22 +150,21 @@ void readFromFile() {
 			string moth = "";
 			moth = moth + main_mas[i]->Date[3] + main_mas[i]->Date[4];
 			string year = "";
-			year = year+  main_mas[i]->Date[6] + main_mas[i]->Date[7];
+			year = year + main_mas[i]->Date[6] + main_mas[i]->Date[7];
 
 			main_mas[i]->mydate.day = stoi(day);
 			main_mas[i]->mydate.moth = stoi(moth);
 			main_mas[i]->mydate.year = stoi(year);
 		}
-		
+
 		fclose(fp);
-		
+
 
 	}
 
-	
-	
-}
 
+
+}
 
 int* makeIndexArray(int k) {
 	int* in = (int*)malloc(sizeof(int) * k);
@@ -133,109 +174,43 @@ int* makeIndexArray(int k) {
 	return in;
 }
 
-
-
-
 bool cmp(myDate& a, myDate& b) {
 
-	if (a.year < b.year) 
-	{ 
-		return true; 
-	}
-	else
-	{
-		if ((a.year == b.year) && (a.moth < b.moth))
-		{
-			return true;
-		}
-		else
-		{
-			if ((a.year == b.year) && (a.moth == b.moth) && (a.day < b.day))
-			{
-				return true;
-			}
-			else
-			{
-				if ((a.year == b.year) && (a.moth == b.moth) && (a.day == b.day))
-				{
-					return true;
-				}
+	int d1 = a.year * 100000 + a.moth * 100 + a.day;
+	int d2 = b.year * 100000 + b.moth * 100 + b.day;
 
-				else
-				{
-					return false;
-				}
-			}
+	return d1 >= d2;
+}
+
+void hoarasort(struct record** a, int left, int right)
+{
+	int i = left + 1;
+	int j = right;
+
+
+	record* tmp;
+
+	while (i < j)
+	{
+		while ((cmp(a[left]->mydate, a[i]->mydate)) && (i < right)) i++;
+		while ((cmp(a[j]->mydate, a[left]->mydate)) && (j > left)) j--;
+
+		if (i < j)
+		{
+			tmp = a[i];
+			a[i] = a[j];
+			a[j] = tmp;
+
 		}
 	}
-	
-	
-	
 
+	tmp = a[j];
+	a[j] = a[left];
+	a[left] = tmp;
 
-	
-	return (a.year == b.year) && (a.moth == b.moth) && (a.day < b.day);
-}
-void hoarasort(struct record** a, int first, int last)
-{
-	cout << "1";
-	int i = first, j = last;
-	myDate tmp, x =  a[(first + last) / 2]->mydate;
-
-	do {
-	while (cmp(a[i]->mydate,x))
-		i++;
-	while (cmp(x, a[j]->mydate))
-		j--;
-
-	if (i <= j)
-	{
-	if (i < j)
-	{
-	a[(first + last) / 2] = a[i];
-	a[i] = a[j];
-	a[j] = a[(first + last) / 2];
-	}
-	i++;
-	j--;
-	}
-	} while (i <= j);
-
-	if (i < last)
-	hoarasort(a, i, last);
-	if (first < j)
-	hoarasort(a, first, j);
+	if (i < right)
+		hoarasort(a, j + 1, right);
+	if (left < j)
+		hoarasort(a, left, j - 1);
 }
 
-
-
-
-int main()
-{
-
-	readFromFile();
-
-	
-	
-	int* main_ind_arr = makeIndexArray(N);
-	hoarasort(main_mas,0,N-1);
-	
-	//quickSort(main_mas, N, main_ind_arr);
-	PrintBD(main_mas, N, main_ind_arr);
-	
-	/*kol = Search(main_mas, N, main_ind_arr);
-	if (kol > 0) {
-		struct tVertex* array = new struct tVertex[kol];
-		PrintQuene();
-		system("cls");
-		fillArray(array, kol);
-		int* tree_ind_arr = makeIndexArray(kol);
-		quickSortW(array, 1, kol, tree_ind_arr);
-		makeDOP1(array, kol, tree_ind_arr);
-		cout << "Stroim derevo" << endl << endl;
-		PrintHead();
-		leftToRight(Root);
-		searchInTree(Root);
-	}*/
-	system("pause");
-}
