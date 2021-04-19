@@ -6,6 +6,8 @@
 #include <time.h>
 #include <ctype.h>
 #include <windows.h>
+#include <cstdio>
+#include <string>
 
 #include <fstream>
 
@@ -14,6 +16,11 @@
 
 using namespace std;
 
+struct myDate {
+	int day;
+	int moth;
+	int year;
+};
 struct record
 {
 	char FIO[32];
@@ -21,6 +28,7 @@ struct record
 	short int Number;
 	short int Apt;
 	char Date[10];
+	myDate mydate;
 } *main_mas[N];
 
 struct Quene {
@@ -82,27 +90,30 @@ void PrintHead() {
 
 void PrintRecord(int num, struct record* BD) {
 	cout << num << ". " << BD->FIO << "\t" << BD->Post << "\t"
-		<< BD->Number << "\t" << BD->Apt << "\t" << BD->Date << endl;
+		<< BD->Number << "\t\t" << BD->mydate.day <<"-"<< BD->mydate.moth << "-" << BD->mydate.year << "-" << endl;
 }
 
 
 void PrintBD(struct record** BD, int n, int* index) {
 
-	int kol = 0;
-	int ans;
+	
 	PrintHead();
 	for (int j = 0; j < n; j++) {
-		kol++;
-		PrintRecord(j + 1, BD[index[j]]);
-		/*if ((kol == 20) && (j != n-1)) {
-			cout << "Prodoljity vivod (1/0)? ";
-			cin >> ans;
-			if (ans == 0) break;
-			else {
-				kol = 0;
-				system("cls");
+		
+		PrintRecord(j, BD[index[j]]);
+
+		if ((j != 0) && (j % 20 == 0))
+		{
+		
+			cout << "Next 20 cout 1:Yes 0:No" << endl;
+			int identif;
+			cin >> identif;
+			if (identif == 0)
+			{
+				break;
 			}
-		}*/
+		}
+		
 	}
 }
 
@@ -137,8 +148,17 @@ void readFromFile() {
 			fgetc(fp);
 			fgets(main_mas[i]->Date, 10, fp);
 			fgetc(fp);
+
+			string day = main_mas[i]->Date[0] + ""+ main_mas[i]->Date[1];
+			string moth = main_mas[i]->Date[3] +""+ main_mas[i]->Date[4];
+			string year = main_mas[i]->Date[6] +""+ main_mas[i]->Date[7];
+
+			main_mas[i]->mydate.day = stoi(day);
+			main_mas[i]->mydate.moth = stoi(moth);
+			main_mas[i]->mydate.year = stoi(year);
 		}
 		fclose(fp);
+		
 
 	}
 
@@ -193,6 +213,37 @@ void quickSort(struct record** ar, int kol, int* ind) {
 	int L = 1;
 	int R = kol;
 	quickSort_main(ar, L, R, ind);
+}
+
+void hoarasort(struct record a, int first, int last)
+{
+
+	int i = first, j = last;
+	char tmp, x = a.Date[(first + last) / 2];
+
+	do {
+		while (a.Date[i] < x)
+			i++;
+		while (a.Date[j] > x)
+			j--;
+
+		if (i <= j)
+		{
+			if (i < j)
+			{
+				tmp = a.Date[i];
+				a.Date[i] = a.Date[j];
+				a.Date[j] = tmp;
+			}
+			i++;
+			j--;
+		}
+	} while (i <= j);
+
+	if (i < last)
+		hoarasort(a, i, last);
+	if (first < j)
+		hoarasort(a, first, j);
 }
 
 
@@ -426,10 +477,16 @@ int main()
 {
 	int kol = 0;
 	readFromFile();
+
+	
+	
 	int* main_ind_arr = makeIndexArray(N);
-	quickSort(main_mas, N, main_ind_arr);
+	//hoarasort(main_mas,0,20);
+	
+	//quickSort(main_mas, N, main_ind_arr);
 	PrintBD(main_mas, N, main_ind_arr);
-	kol = Search(main_mas, N, main_ind_arr);
+	
+	/*kol = Search(main_mas, N, main_ind_arr);
 	if (kol > 0) {
 		struct tVertex* array = new struct tVertex[kol];
 		PrintQuene();
@@ -442,6 +499,6 @@ int main()
 		PrintHead();
 		leftToRight(Root);
 		searchInTree(Root);
-	}
+	}*/
 	system("pause");
 }
