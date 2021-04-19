@@ -42,7 +42,7 @@ void PrintHead() {
 
 void PrintRecord(int num, struct record* BD) {
 	cout << num << ". " << BD->FIO << "\t" << BD->Post << "\t"
-		<< BD->Number << "\t\t" << BD->Date << endl;
+		<< BD->Number << "\t\t" << BD->mydate.day << "-"<<BD->mydate.moth << "-" << BD->mydate.year  << endl;
 }
 
 
@@ -136,17 +136,49 @@ int* makeIndexArray(int k) {
 
 
 
-bool cmp(myDate &a, myDate &b) {
+bool cmp(myDate& a, myDate& b) {
+
+	if (a.year < b.year) 
+	{ 
+		return true; 
+	}
+	else
+	{
+		if ((a.year == b.year) && (a.moth < b.moth))
+		{
+			return true;
+		}
+		else
+		{
+			if ((a.year == b.year) && (a.moth == b.moth) && (a.day < b.day))
+			{
+				return true;
+			}
+			else
+			{
+				if ((a.year == b.year) && (a.moth == b.moth) && (a.day == b.day))
+				{
+					return true;
+				}
+
+				else
+				{
+					return false;
+				}
+			}
+		}
+	}
 	
-	if (a.year < b.year) return true;
-	if (a.year > b.year) return false;
-	if (a.moth < b.moth) return true;
-	if (a.moth > b.moth) return false;
-	return a.day < b.day;
+	
+	
+
+
+	
+	return (a.year == b.year) && (a.moth == b.moth) && (a.day < b.day);
 }
 void hoarasort(struct record** a, int first, int last)
 {
-	
+	cout << "1";
 	int i = first, j = last;
 	myDate tmp, x =  a[(first + last) / 2]->mydate;
 
