@@ -8,7 +8,6 @@
 #include <windows.h>
 #include <cstdio>
 #include <string>
-
 #include <fstream>
 
 #define N 4000
@@ -33,9 +32,16 @@ struct record
 
 struct tnode {
 	int field;           // поле данных
-	struct tnode* left;  // левый потомок
-	struct tnode* right; // правый потомок
-};
+	struct tnode *left;  // левый потомок
+	struct tnode *right; // правый потомок
+}*tN;
+
+struct recordQueue
+{
+	struct record* r;
+	int first, last;
+} *rQ;
+
 
 void PrintHead();
 void PrintRecord(int num, struct record* BD);
@@ -44,9 +50,17 @@ void readFromFile();
 int* makeIndexArray(int k);
 bool cmp(myDate& a, myDate& b);
 void hoarasort(struct record** a, int left, int right);
-struct tnode* addnode(int x, tnode* tree);
-struct record* HalfDiv(int targetYear, struct record** a);
 
+
+struct recordQueue* SeachPuchQ(int targetYear, struct record** a);
+void initQ(struct recordQueue* q, int len);
+void deleteQ();
+void insertQ(struct recordQueue* q, record* r);
+void printQ(struct recordQueue* q);
+
+
+void treeprint(tnode* tree);
+struct tnode* addnode(int x, tnode* tree);
 
 //////////////// MAIN///////////////////////
 
@@ -57,13 +71,108 @@ int main()
 	int* main_ind_arr = makeIndexArray(N);
 	hoarasort(main_mas, 0, N-1);
 	PrintBD(main_mas, N, main_ind_arr);
-	PrintRecord(5, HalfDiv(8, main_mas));
+
+	int y = 0;
+	rQ = (recordQueue*)malloc(sizeof(recordQueue));
+	while (y != -1)
+	{
+		cout <<endl<< "/////////////QUEUE//////////////" << endl;
+		cout << "Find year (-1 for exit): ";
+		cin >> y;
+		if (SeachPuchQ(y, main_mas) != NULL)
+		{
+			printQ(rQ);			
+
+		}
+		else if (y != -1)
+			cout << "Don't find..." << endl;
+	}
+
+	cout <<endl<< "/////////////TREE//////////////" << endl;
+	tN = NULL;
+	for (int i = 0; i < rQ->last; i++)
+	{
+		addnode(rQ->r[i].mydate.day, tN);
+	}
+	treeprint(tN);
+
+
+	//deleteQ();
 }
 /// <summary>
 /// /////////////////////////////////////////////////////////////////
 /// </summary>
 
-struct record* HalfDiv(int targetYear, struct record** a)
+void deleteQ()
+{
+	
+		delete &main_mas;
+	
+	
+		delete &rQ->r;
+	
+	delete &rQ;
+	
+}
+
+struct tnode* addnode(int x, tnode* tree) {
+	if (tree == NULL) { // Если дерева нет, то формируем корень
+		tree = new tnode; // память под узел
+		
+		tree->field = x;   // поле данных
+		tree->left = new tnode[rq->last];
+		tree->right = new tnode[rq->last]; // ветви инициализируем пустотой
+	}
+	else  if (x < tree->field)   
+		tree->left = addnode(x, tree->left);
+	else    
+		tree->right = addnode(x, tree->right);
+	return(tree);
+}
+
+void treeprint(tnode* tree) {
+	if (tree != NULL) { //Пока не встретится пустой узел
+		cout << tree->field; //Отображаем корень дерева
+		treeprint(tree->left); //Рекурсивная функция для левого поддерева
+		treeprint(tree->right); //Рекурсивная функция для правого поддерева
+	}
+}
+
+void printQ(struct recordQueue *q)
+{
+	for (int i = q->first; i < q->last; i++)
+	{
+		PrintRecord(i, &q->r[i]);
+	}
+}
+
+void insertQ(struct recordQueue* q, record* r)
+{
+	if (q->first == q->last)
+	{
+		
+		q->r[0] = *r;
+		q->last++;
+	}
+	else
+	{
+		q->r[q->last] = *r;
+		q->last++;
+	}
+
+	
+}
+
+void initQ(struct recordQueue* q, int len)
+{
+	
+	q->r = new record[len];
+	q->first = 0;
+	q->last = 0;
+	
+}
+
+struct recordQueue* SeachPuchQ(int targetYear, struct record** a)
 {
 	int l, r;
 	int i_key = 0, j = N - 1, m;
@@ -74,28 +183,28 @@ struct record* HalfDiv(int targetYear, struct record** a)
 		else j = m;
 	}
 	l = i_key;
-	r = i_key;
-	while (a[l]->mydate.year == targetYear) l--;
-	while (a[r]->mydate.year == targetYear) r++;
+	r = j;
+	while ((a[l]->mydate.year == targetYear)&&(l>0)) l--;
+	while ((a[r]->mydate.year == targetYear) && (r < N)) r++;
 	if (a[i_key]->mydate.year != targetYear) return NULL;
-	else return a[i_key];
+	else
+	{
+		initQ(rQ, r);
+		for (int i = l; i < r; i++)
+		{
+			if (a[i]->mydate.year == targetYear)
+			{
+				insertQ(rQ, a[i]);
+			}
+				
+			
+			
+		}
+	}
+
+	return rQ;
 
 };
-
-struct tnode* addnode(int x, tnode* tree) {
-	if (tree == NULL) { // Если дерева нет, то формируем корень
-		tree = new tnode; // память под узел
-		tree->field = x;   // поле данных
-		tree->left = NULL;
-		tree->right = NULL; // ветви инициализируем пустотой
-	}
-	else  if (x < tree->field)   // условие добавление левого потомка
-		tree->left = addnode(x, tree->left);
-	else    // условие добавление правого потомка
-		tree->right = addnode(x, tree->right);
-	return(tree);
-}
-
 
 
 void PrintHead() {
