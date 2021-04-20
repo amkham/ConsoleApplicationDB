@@ -45,7 +45,7 @@ int* makeIndexArray(int k);
 bool cmp(myDate& a, myDate& b);
 void hoarasort(struct record** a, int left, int right);
 struct tnode* addnode(int x, tnode* tree);
-void HalfDiv(int start, int end);
+struct record* HalfDiv(int targetYear, struct record** a);
 
 
 //////////////// MAIN///////////////////////
@@ -57,13 +57,30 @@ int main()
 	int* main_ind_arr = makeIndexArray(N);
 	hoarasort(main_mas, 0, N-1);
 	PrintBD(main_mas, N, main_ind_arr);
-	//HalfDiv(0, 40);
+	PrintRecord(5, HalfDiv(8, main_mas));
 }
 /// <summary>
 /// /////////////////////////////////////////////////////////////////
 /// </summary>
 
+struct record* HalfDiv(int targetYear, struct record** a)
+{
+	int l, r;
+	int i_key = 0, j = N - 1, m;
+	while (i_key < j)
+	{
+		m = (i_key + j) / 2;
+		if (a[m]->mydate.year < targetYear) i_key = m + 1;
+		else j = m;
+	}
+	l = i_key;
+	r = i_key;
+	while (a[l]->mydate.year == targetYear) l--;
+	while (a[r]->mydate.year == targetYear) r++;
+	if (a[i_key]->mydate.year != targetYear) return NULL;
+	else return a[i_key];
 
+};
 
 struct tnode* addnode(int x, tnode* tree) {
 	if (tree == NULL) { // Если дерева нет, то формируем корень
@@ -173,17 +190,17 @@ int* makeIndexArray(int k) {
 	return in;
 }
 
-bool cmp(myDate& a, myDate& b) {
+bool cmp(myDate &a, myDate &b) {
 
-	int d1 = a.year * 100000 + a.moth * 100 + a.day;
-	int d2 = b.year * 100000 + b.moth * 100 + b.day;
+	int d1 = a.year * 10000 + a.moth * 100 + a.day;
+	int d2 = b.year * 10000 + b.moth * 100 + b.day;
 
-	return d1 >= d2;
+	return d1 >= d2 ;
 }
 
 void hoarasort(struct record** a, int left, int right)
 {
-	int i = left + 1;
+	int i = left;
 	int j = right;
 
 
@@ -199,7 +216,7 @@ void hoarasort(struct record** a, int left, int right)
 			tmp = a[i];
 			a[i] = a[j];
 			a[j] = tmp;
-
+			
 		}
 	}
 
