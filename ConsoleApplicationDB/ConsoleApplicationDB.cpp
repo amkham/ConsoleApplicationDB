@@ -31,9 +31,10 @@ struct record
 }* main_mas[N];
 
 struct tnode {
-	int field;           // поле данных
-	struct tnode *left;  // левый потомок
-	struct tnode *right; // правый потомок
+	char* field;   
+	int count; 
+	struct tnode *left;  
+	struct tnode *right; 
 }*tN;
 
 struct recordQueue
@@ -59,8 +60,11 @@ void insertQ(struct recordQueue* q, record* r);
 void printQ(struct recordQueue* q);
 
 
-void treeprint(tnode* tree);
-struct tnode* addnode(int x, tnode* tree);
+void treeprint(struct tnode* tree);
+struct tnode* addnode(struct record *r, struct tnode* tree);
+bool cmpChar(char* c1, char* c2);
+void treeFind(struct tnode* tree, char target);
+
 
 //////////////// MAIN///////////////////////
 
@@ -89,15 +93,23 @@ int main()
 	}
 
 	cout <<endl<< "/////////////TREE//////////////" << endl;
-	tN = NULL;
+	
 	for (int i = 0; i < rQ->last; i++)
 	{
-		addnode(rQ->r[i].mydate.day, tN);
+		tN = addnode(&rQ->r[i], tN);
 	}
+
+
 	treeprint(tN);
 
+	char t = '0';
+	cout << "Find for first simbol in surname: ";
+	cin >> t;
+	treeFind(tN, t);
 
 	//deleteQ();
+
+	cin;
 }
 /// <summary>
 /// /////////////////////////////////////////////////////////////////
@@ -115,26 +127,61 @@ void deleteQ()
 	
 }
 
-struct tnode* addnode(int x, tnode* tree) {
-	if (tree == NULL) { // Если дерева нет, то формируем корень
-		tree = new tnode; // память под узел
-		
-		tree->field = x;   // поле данных
-		tree->left = new tnode[rq->last];
-		tree->right = new tnode[rq->last]; // ветви инициализируем пустотой
+
+
+
+bool cmpChar(char* c1, char* c2)
+{
+	int i = 0;
+	while (c1[i] == c2[i])
+	{
+		i++;
 	}
-	else  if (x < tree->field)   
-		tree->left = addnode(x, tree->left);
-	else    
-		tree->right = addnode(x, tree->right);
-	return(tree);
+	
+	return c1[i] > c2[i];
+
 }
 
-void treeprint(tnode* tree) {
+
+struct tnode* addnode(struct record* r, struct tnode* tree) {
+
+	if (tree == NULL) 
+	{
+		
+		tree = (struct tnode*)malloc(sizeof(struct tnode));
+		tree->field = &r->FIO[0];
+		tree->left = tree->right = NULL;
+		
+		
+	}
+	else 
+	{
+		
+			if (cmpChar(tree->field, r->FIO))
+				tree->left = addnode(r, tree->left);
+			else
+				tree->right = addnode(r, tree->right);
+		
+		
+	}
+	
+	return(tree);
+	
+}
+
+void treeprint(struct tnode* tree) {
 	if (tree != NULL) { //Пока не встретится пустой узел
-		cout << tree->field; //Отображаем корень дерева
-		treeprint(tree->left); //Рекурсивная функция для левого поддерева
-		treeprint(tree->right); //Рекурсивная функция для правого поддерева
+		
+		cout << tree->field << endl;
+		treeprint(tree->left); 
+		treeprint(tree->right);
+	}
+}
+void treeFind(struct tnode* tree, char target) {
+	if (tree != NULL)  {
+		treeFind(tree->left, target);
+		treeFind(tree->right, target);
+		if (tree->field[0]==target) cout << tree->field;
 	}
 }
 
@@ -145,6 +192,7 @@ void printQ(struct recordQueue *q)
 		PrintRecord(i, &q->r[i]);
 	}
 }
+
 
 void insertQ(struct recordQueue* q, record* r)
 {
@@ -170,6 +218,14 @@ void initQ(struct recordQueue* q, int len)
 	q->first = 0;
 	q->last = 0;
 	
+}
+void initT(struct tnode* tree)
+{
+	tree = (struct tnode*)malloc(sizeof(struct tnode));
+	tree->field = new char;
+	tree->left = NULL;
+	tree->right = NULL;
+
 }
 
 struct recordQueue* SeachPuchQ(int targetYear, struct record** a)
