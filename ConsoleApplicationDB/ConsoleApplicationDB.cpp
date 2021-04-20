@@ -53,8 +53,11 @@ void HalfDiv(int start, int end);
 
 int main()
 {
-
-	HalfDiv(0, 40);
+	readFromFile();
+	int* main_ind_arr = makeIndexArray(N);
+	hoarasort(main_mas, 0, N-1);
+	PrintBD(main_mas, N, main_ind_arr);
+	//HalfDiv(0, 40);
 }
 /// <summary>
 /// /////////////////////////////////////////////////////////////////
@@ -76,11 +79,7 @@ struct tnode* addnode(int x, tnode* tree) {
 	return(tree);
 }
 
-struct record* Seach()
-{
 
-
-}
 
 void PrintHead() {
 	cout << "FIO \t\t\t\t\tDoljnost\t\tNomerOtdela\tData rojdeniya" <<
@@ -190,7 +189,7 @@ void hoarasort(struct record** a, int left, int right)
 
 	record* tmp;
 
-	while (i < j)
+	while (i <j)
 	{
 		while ((cmp(a[left]->mydate, a[i]->mydate)) && (i < right)) i++;
 		while ((cmp(a[j]->mydate, a[left]->mydate)) && (j > left)) j--;
