@@ -170,7 +170,7 @@ struct tnode* addnode(struct record* r, struct tnode* tree) {
 }
 
 void treeprint(struct tnode* tree) {
-	if (tree != NULL) { //Пока не встретится пустой узел
+	if (tree != NULL) { 
 		
 		cout << tree->field << endl;
 		treeprint(tree->left); 
@@ -181,7 +181,7 @@ void treeFind(struct tnode* tree, char target) {
 	if (tree != NULL)  {
 		treeFind(tree->left, target);
 		treeFind(tree->right, target);
-		if (tree->field[0]==target) cout << tree->field;
+		if (tree->field[0]==target) cout << tree->field << endl;
 	}
 }
 
